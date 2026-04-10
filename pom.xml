@@ -15,7 +15,7 @@
 	<description>Nerdlab Portfolio and Blog API</description>
 	<properties>
 		<java.version>21</java.version>
-		<tomcat.version>10.1.45</tomcat.version>
+		<tomcat.version>10.1.52</tomcat.version>
 		<spring-security.version>6.5.9</spring-security.version>
 		<spring-framework.version>6.2.11</spring-framework.version>
 		<postgresql.version>42.7.7</postgresql.version>
