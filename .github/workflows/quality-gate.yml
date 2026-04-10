@@ -2,9 +2,9 @@ name: Quality Gate (SonarQube)
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, development ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, development ]
 
 jobs:
   sonar:
