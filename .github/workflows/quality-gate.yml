@@ -38,4 +38,5 @@ jobs:
           mvn clean verify sonar:sonar \
             -Dsonar.projectKey=${{ github.event.repository.name }} \
             -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.token=$SONAR_TOKEN
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.ws.timeout=300
