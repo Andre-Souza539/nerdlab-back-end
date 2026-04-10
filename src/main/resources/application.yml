@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: nerdlab-api
+  datasource:
+    # H2 Configuration (Default for development)
+    url: jdbc:h2:mem:nerdlabdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: 
+    
+    # PostgreSQL Configuration (Commented out for now)
+    # url: jdbc:postgresql://localhost:5432/nerdlab
+    # username: postgres
+    # password: postgres
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+nerdlab:
+  jwt:
+    secret: vW7v5w8x/A?D(G+KbPeShVmYq3t6w9z$C&E)H@McQfTjWnZr4u7x!A%D*G-KaPdS
+    expiration: 86400000
+  auth:
+    admin:
+      email: aljs.junca@gmail.com
+      username: junca539
+      password: mudar123
