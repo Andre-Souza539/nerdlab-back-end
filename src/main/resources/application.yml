@@ -2,32 +2,24 @@ spring:
   application:
     name: nerdlab-api
   datasource:
-    # H2 Configuration (Default for development)
-    url: jdbc:h2:mem:nerdlabdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driverClassName: org.h2.Driver
-    username: sa
-    password: 
-    
-    # PostgreSQL Configuration (Commented out for now)
-    # url: jdbc:postgresql://localhost:5432/nerdlab
-    # username: postgres
-    # password: postgres
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:nerdlabdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    driverClassName: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
 
 nerdlab:
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
   jwt:
-    secret: vW7v5w8x/A?D(G+KbPeShVmYq3t6w9z$C&E)H@McQfTjWnZr4u7x!A%D*G-KaPdS
+    secret: ${JWT_SECRET:vW7v5w8x/A?D(G+KbPeShVmYq3t6w9z$C&E)H@McQfTjWnZr4u7x!A%D*G-KaPdS}
     expiration: 86400000
   auth:
     admin:
