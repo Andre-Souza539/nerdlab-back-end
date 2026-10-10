@@ -1,0 +1,444 @@
+{
+  "info": {
+    "_postman_id": "c1f7a012-9852-4e2b-bb48-52e891d4e001",
+    "name": "NerdLab API - v2",
+    "description": "Coleção completa de endpoints para a NerdLab API (Spring Boot 3.4 / Java 21 / JWT / Flyway / OpenAPI 3).\n\nInclui scripts automáticos para captura do Bearer Token JWT no Login e injeção automática nas requisições autenticadas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticação & Usuários",
+      "item": [
+        {
+          "name": "Cadastrar Novo Usuário (Register)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Oliveira\",\n  \"username\": \"mariaoliveira\",\n  \"email\": \"maria.oliveira@nerdlab.com\",\n  \"password\": \"SenhaForte123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Cria uma nova conta de usuário com senha criptografada via BCrypt e papel ROLE_USER."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna os dados do usuário cadastrado\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json.email).to.eql(\"maria.oliveira@nerdlab.com\");",
+                  "    pm.expect(json.role).to.eql(\"ROLE_USER\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin Padrão)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@nerdlab.com\",\n  \"password\": \"admin123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica o administrador inicial semeado no boot da aplicação. O script de teste salva automaticamente o token JWT na variável {{jwt_token}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.token) {",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                  "    console.log(\"✅ Token JWT capturado e salvo na variável {{jwt_token}}\");",
+                  "}",
+                  "",
+                  "pm.test(\"Resposta contém token e tipo Bearer\", function () {",
+                  "    pm.expect(jsonData.token).to.be.a(\"string\");",
+                  "    pm.expect(jsonData.type).to.eql(\"Bearer\");",
+                  "    pm.expect(jsonData.user.role).to.eql(\"ROLE_ADMIN\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Com Username)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Demonstra a flexibilidade do login autenticando pelo campo username em vez do email."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.token) {",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar Perfil Autenticado (/me)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Recupera os detalhes completos do usuário autenticado a partir do token Bearer JWT."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Contém dados do perfil\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"email\");",
+                  "    pm.expect(json).to.have.property(\"role\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Alterar Senha (/change-password)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"NovaSenhaForte456!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Atualiza a senha do usuário atualmente autenticado com nova criptografia BCrypt."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Diagnóstico & Conectividade",
+      "item": [
+        {
+          "name": "Ping Protegido (Autenticado - 200 OK)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ping"
+              ]
+            },
+            "description": "Verifica a saúde do serviço e a validade da sessão autenticada. Retorna 'pong', timestamp UTC e dados do usuário logado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna status pong e usuário associado\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(\"pong\");",
+                  "    pm.expect(json).to.have.property(\"timestamp\");",
+                  "    pm.expect(json).to.have.property(\"authenticatedUser\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ping Sem Autenticação (Teste de 401 Unauthorized)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ping"
+              ]
+            },
+            "description": "Testa a regra de segurança do Spring Security que bloqueia chamadas sem token Bearer com 401 Unauthorized."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Documentação & Metadados",
+      "item": [
+        {
+          "name": "OpenAPI 3 JSON Spec (/v3/api-docs)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v3",
+                "api-docs"
+              ]
+            },
+            "description": "Retorna o contrato OpenAPI 3 gerado dinamicamente pelo SpringDoc."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Especificação OpenAPI válida\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"openapi\");",
+                  "    pm.expect(json.info.title).to.include(\"NerdLab API\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

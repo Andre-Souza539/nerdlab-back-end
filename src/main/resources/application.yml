@@ -8,21 +8,33 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
     show-sql: ${SPRING_JPA_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
         dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui/index.html
+    tags-sorter: alpha
+    operations-sorter: alpha
 
 nerdlab:
   cors:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
   jwt:
     secret: ${JWT_SECRET:vW7v5w8x/A?D(G+KbPeShVmYq3t6w9z$C&E)H@McQfTjWnZr4u7x!A%D*G-KaPdS}
-    expiration: 86400000
+    expiration: ${JWT_EXPIRATION:86400000} # 24 horas em milissegundos
   auth:
     admin:
-      email: aljs.junca@gmail.com
-      username: junca539
-      password: mudar123
+      email: ${ADMIN_EMAIL:admin@nerdlab.com}
+      username: ${ADMIN_USERNAME:admin}
+      password: ${ADMIN_PASSWORD:admin123456}

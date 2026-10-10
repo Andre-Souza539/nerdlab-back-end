@@ -23,6 +23,10 @@ public class JwtService {
     @Value("${nerdlab.jwt.expiration}")
     private long jwtExpiration;
 
+    public long getExpirationInSeconds() {
+        return jwtExpiration / 1000;
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
