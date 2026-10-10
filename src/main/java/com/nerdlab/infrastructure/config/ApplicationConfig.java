@@ -8,27 +8,34 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
+
 @Configuration
-@RequiredArgsConstructor
 public class ApplicationConfig {
 
     private final UserService userService;
 
+    public ApplicationConfig(UserService userService) {
+        this.userService = userService;
+    }
+
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userService.findByUsername(username)
-                .map(user -> User.builder()
-                        .username(user.getUsername())
-                        .password(user.getPassword())
-                        .roles("ADMIN")
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return identifier -> userService.findByIdentifier(identifier)
+                .map(user -> new User(
+                        user.getUsername() != null ? user.getUsername() : user.getEmail(),
+                        user.getPassword(),
+                        Collections.singletonList(new SimpleGrantedAuthority(
+                                user.getRole() != null ? user.getRole() : "ROLE_USER"
+                        ))
+                ))
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com identificador: " + identifier));
     }
 
     @Bean
