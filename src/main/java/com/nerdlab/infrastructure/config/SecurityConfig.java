@@ -65,8 +65,10 @@ public class SecurityConfig {
                         ).permitAll()
                         // H2 Console local
                         .requestMatchers("/h2-console/**").permitAll()
-                        // Rota protegida do ping e perfil /me
-                        .requestMatchers("/api/v1/ping", "/api/v1/auth/me").authenticated()
+                        // Rotas públicas de diagnóstico e liveness (Ping)
+                        .requestMatchers("/api/v1/ping").permitAll()
+                        // Rota protegida do perfil /me
+                        .requestMatchers("/api/v1/auth/me").authenticated()
                         // Qualquer outra rota requer autenticação
                         .anyRequest().authenticated()
                 )

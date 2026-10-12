@@ -22,7 +22,7 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/ping")
-@Tag(name = "Diagnóstico", description = "Endpoint de teste de conectividade e validação de sessão protegida")
+@Tag(name = "Diagnóstico", description = "Endpoint de teste de conectividade e verificação de disponibilidade")
 public class PingController {
 
     private final UserService userService;
@@ -33,18 +33,22 @@ public class PingController {
 
     @GetMapping
     @Operation(
-            summary = "Teste de conectividade protegido (Ping/Pong)",
-            description = "Responde 'pong' com o timestamp do servidor e os dados do usuário autenticado. Requer Bearer Token JWT."
+            summary = "Teste de conectividade pública (Ping/Pong)",
+            description = "Responde 'pong' com o timestamp do servidor para validação de liveness. Se enviado Bearer Token válido, enriquece a resposta com os dados do usuário autenticado."
     )
-    @SecurityRequirement(name = "bearerAuth")
-    @ApiResponse(responseCode = "200", description = "Conexão autenticada confirmada com sucesso",
+    @ApiResponse(responseCode = "200", description = "Servidor ativo e responsivo",
             content = @Content(schema = @Schema(implementation = PingResponse.class)))
-    @ApiResponse(responseCode = "401", description = "Acesso negado: Bearer token ausente ou inválido",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public ResponseEntity<PingResponse> ping() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String identifier = authentication.getName();
-        UserSummaryResponse userSummary = userService.getProfile(identifier);
+        UserSummaryResponse userSummary = null;
+
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            try {
+                userSummary = userService.getProfile(authentication.getName());
+            } catch (Exception ignored) {
+                // Mantém null em caso de erro na resolução de perfil durante o ping
+            }
+        }
 
         PingResponse response = new PingResponse(
                 "pong",
